@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout/layout :: head"></head>
+<body>
+
+<header th:replace="layout/layout :: menu"></header>
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-12">
+
+            <div class="card">
+                <div class="card-header h2" th:text="${title}"></div>
+                <div class="card-body">
+
+                    <h4 class="card-title">
+                        <a class="btn btn-light btn-sm" th:href="@{'/view/' + ${invoice.client.id}}">&laquo;Go back</a>
+                    </h4>
+
+                    <form class="rounded  p-3 mt-3" th:action="@{/invoice/form}" method="post" th:object="${invoice}">
+                        <!-- Error messages on form top-->
+                        <div th:object="${invoice}" th:remove="tag">
+                            <ul th:if="${#fields.hasErrors('*')}" class="alert-danger">
+                                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                            </ul>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-form-label col-md-2">Client</label>
+                            <div class="col-md-6">
+                                <input name="client" th:value="${invoice.client.firstName} + ' ' + ${invoice.client.lastName}" class="form-control" disabled='disabled' >
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="description" class="col-form-label col-md-2">Description</label>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" name="description" id="description" th:field="*{description}" th:errorClass="'form-control alert-danger'">
+                                <small class="form-text text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="observation" class="col-form-label col-md-2">Observation</label>
+                            <div class="col-md-6">
+                                <textarea class="form-control" name="observation" id="observation" rows="5"></textarea>
+                                <small class="form-text text-danger" th:if="${#fields.hasErrors('observation')}" th:errors="*{observation}"></small>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="search_product" class="col-form-label col-md-2">Search product</label>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" name="search_product" id="search_product">
+                            </div>
+                        </div>
+
+                        <table class="d-none">
+                            <tbody id="invoiceitemtemplatebody">
+                            <tr id="row_{ID}">
+                                <td class="d-none"><input type="hidden" value="{ID}" name="item_id[]" /></td>
+                                <td>{NAME}</td>
+                                <td>{PRICE}</td>
+                                <td><input type="number" value="1" name="quantity[]" id="quantity_{ID}" class="form-control col-sm-4" onchange="itemsHelper.calculateTotalImport({ID},{PRICE}, this.value);"/></td>
+                                <td><span id="lineTotalPrice_{ID}">0</span></td>
+                                <td><a href="#" class="btn btn-danger btn-sm" onclick="itemsHelper.DeleteInvoiceLine({ID});">x</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <table id="loadProductLine" class=" table table-sm table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+
+                        <h5>Total <span class="badge badge-secondary" id="invoice_total">0</span></h5>
+
+                        <input type="hidden" th:field="*{client.id}">
+                        <input type="hidden" th:field="*{client.firstName}">
+                        <input type="hidden" th:field="*{client.lastName}">
+                        <input type="hidden" th:field="*{client.image}">
+                        <input type="hidden" th:field="*{client.createdAt}">
+                        <input type="hidden" th:field="*{client.email}">
+                        <input type="hidden" th:field="*{id}">
+                        <div class="form-group row" th:if="${invoice.id == null}">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-primary mr-1">Create invoice</button>
+                            </div>
+                        </div>
+                        <div class="form-group row" th:if="${invoice.id != null}">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-primary mr-1">Update invoice</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<footer th:replace="layout/layout :: footer"></footer>
+<script th:replace="invoice/js/autocomplete-product :: javascript"></script>
+
+</body>
+</html>
